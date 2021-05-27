@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
@@ -29,6 +34,30 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function login(Request $request)
+    {
+        $request->session()->flash('email');
+        Validator::make($request->all(), app(LoginRequest::class)->rules());
+
+        $email = trim($request->email);
+        $password = trim($request->password);
+
+        $user = User::where('email', 'like', $email)->first();
+       
+        if ($user) {
+            if (Hash::check($password, $user->password)) {
+                Auth::login($user);
+
+                return redirect()->route('home');
+            } else {
+                $request->session()->flash('statusPassword', 'Password mismatched');
+            }
+        } else {
+            $request->session()->flash('statusEmail', 'Email mismatched');
+        }
+        return view('auth.login');
     }
 
     public function redirectToFacebook()
@@ -60,10 +89,11 @@ class LoginController extends Controller
         return redirect()->route('home');
     }
 
-    protected function _resgisterOrLogin($data){
+    protected function _resgisterOrLogin($data)
+    {
 
         $user = User::where('email', '=', $data->email)->first();
-        if(!$user){
+        if (!$user) {
             $user = new User();
             $user->name = $data->name;
             $user->email = $data->email;
@@ -74,5 +104,4 @@ class LoginController extends Controller
 
         Auth::login($user);
     }
-
 }
