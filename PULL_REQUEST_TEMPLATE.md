@@ -13,6 +13,8 @@
 - [#36556](https://edu-redmine.sun-asterisk.vn/issues/36556)
 - [#36566](https://edu-redmine.sun-asterisk.vn/issues/36566)
 - [#36564](https://edu-redmine.sun-asterisk.vn/issues/36564)
+- [#36566](https://edu-redmine.sun-asterisk.vn/issues/36566)
+
 
 
 ## WHAT this PR does?
@@ -26,6 +28,7 @@
 - CRUD Course
 - CRUD Word
 - CRUD Lesson
+- CRUD Category
 <!--
 - ex: Change number items `completed/total` in admin page.
 -->
