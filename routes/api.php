@@ -27,3 +27,4 @@ Route::post('user/lesson/result', [UserLessonController::class, 'updateResult'])
 
 Route::get('words/{option}', [WordController::class, 'filter'])->name('words');
 
+Route::get('words/search/{char}', [WordController::class, 'search'])->name('search');

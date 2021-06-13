@@ -1,272 +1,297 @@
 "use strict";
 $(document).ready(function () {
 
-    
-
-    $("#filter").change(function () {
-        var valueFilter = $("#filter option:selected").val();
+    $("#txtserach").change(function () {
+        var value = $("#txtserach").val();
+        console.log(value);
         $.ajax({
-            url: "http://localhost:8000/api/words/" + valueFilter,
+            url: "http://58.84.0.169/api/words/search/" + value,
             method: 'GET',
             success: function (e) {
-                console.log(JSON.parse(e));
                 var dataWords = JSON.parse(e);
                 $('#wordElements').empty();
+                var flag = false;
                 for (let index = 0; index < dataWords.length; index++) {
                     const element = dataWords[index];
-                    if(index > 0 && valueFilter == 2 && element['category_id'] != elementOld['category_id']){
-                        $('#wordElements').append('<hr class="between">');
-                    }
-                    var el= '<div class="col-xl-6 col-md-6 mb-3"><div class="card mb-1"><div class="card-block"><div class="row align-items-center"><div class="col-12"><span class="float-right"> '+ (index+1) +' </span><h4 class="text-c-purple">'+ element['vocabulary'] +'<span class="font-italic category"> ('+ element['category_name'] +')</span></h4><h6 class="text-muted m-b-0">'+ element['translate'] +'</h6></div></div></div></div></div>';
+                    console.log(element);
+                    var el = '<div class="col-xl-6 col-md-6 mb-3"><div class="card mb-1"><div class="card-block"><div class="row align-items-center"><div class="col-12"><span class="float-right"> ' + (index + 1) + ' </span><h4 class="text-c-purple">' + element['vocabulary'] + '<span class="font-italic category"> (' + element['category_name'] + ')</span></h4><h6 class="text-muted m-b-0">' + element['translate'] + '</h6></div></div></div></div></div>';
                     $('#wordElements').append(el);
-                    var elementOld = element;
-                };
-            }
-        });
-    }).change();
+                    flag = true;
+                }
 
-    // card js start
-    var elementsVocabulary = document.querySelectorAll('.word');
+                if(!flag) {
+                    console.log('that');
+                    var el = '<span> Nothing... </span>';
+                    $('#wordElements').append(el);
+                }
+        }
+        });
+}).change();
+
+$("#filter").change(function () {
+    var valueFilter = $("#filter option:selected").val();
+    $.ajax({
+        url: "http://58.84.0.169/api/words/" + valueFilter,
+        method: 'GET',
+        success: function (e) {
+            console.log(JSON.parse(e));
+            var dataWords = JSON.parse(e);
+            $('#wordElements').empty();
+            for (let index = 0; index < dataWords.length; index++) {
+                const element = dataWords[index];
+                if (index > 0 && valueFilter == 2 && element['category_id'] != elementOld['category_id']) {
+                    $('#wordElements').append('<hr class="between">');
+                }
+                var el = '<div class="col-xl-6 col-md-6 mb-3"><div class="card mb-1"><div class="card-block"><div class="row align-items-center"><div class="col-12"><span class="float-right"> ' + (index + 1) + ' </span><h4 class="text-c-purple">' + element['vocabulary'] + '<span class="font-italic category"> (' + element['category_name'] + ')</span></h4><h6 class="text-muted m-b-0">' + element['translate'] + '</h6></div></div></div></div></div>';
+                $('#wordElements').append(el);
+                var elementOld = element;
+            };
+        }
+    });
+}).change();
+
+// card js start
+var elementsVocabulary = document.querySelectorAll('.word');
+for (let index = 0; index < elementsVocabulary.length; index++) {
+    const element = elementsVocabulary[index];
+    if (index == 0) {
+        element.style.animation = "erase 2s";
+        continue;
+    }
+    element.style.display = 'none';
+}
+
+var currentVocabulary = 0;
+$("#next-vocabulary").on('click', function () {
+    currentVocabulary++;
+    if (currentVocabulary >= elementsVocabulary.length) {
+        alert('The next is list question for this lesson');
+        $('#next-vocabulary').remove();
+        $('#tools-voice').remove();
+        $('#container-vocabulary').remove();
+        $('#container-questions').toggle();
+        $('#done-questions').toggle();
+        $('#container-questions').animation = "erase 2s";
+    }
     for (let index = 0; index < elementsVocabulary.length; index++) {
         const element = elementsVocabulary[index];
-        if (index == 0) {
+        if (index == currentVocabulary) {
+            element.style.display = 'block';
             element.style.animation = "erase 2s";
             continue;
         }
         element.style.display = 'none';
     }
+});
 
-    var currentVocabulary = 0;
-    $("#next-vocabulary").on('click', function () {
-        currentVocabulary++;
-        if (currentVocabulary >= elementsVocabulary.length) {
-            alert('The next is list question for this lesson');
-            $('#next-vocabulary').remove();
-            $('#tools-voice').remove();
-            $('#container-vocabulary').remove();
-            $('#container-questions').toggle();
-            $('#done-questions').toggle();
-            $('#container-questions').animation = "erase 2s";
-        }
-        for (let index = 0; index < elementsVocabulary.length; index++) {
-            const element = elementsVocabulary[index];
-            if (index == currentVocabulary) {
-                element.style.display = 'block';
-                element.style.animation = "erase 2s";
-                continue;
-            }
-            element.style.display = 'none';
-        }
+$('#changePass').click(function () {
+    if ($(this).prop("checked") == true) {
+        $('#container_password').show();
+        $('.pass').prop('required', true);
+    } else {
+        $('#container_password').hide();
+        $('.pass').prop('required', false);
+    }
+});
+$('#edit').click(function () {
+    if ($(this).prop("checked") == true) {
+        $('#form-edit-user').show();
+    } else {
+        $('#form-edit-user').hide();
+    }
+});
+
+$(".card-header-right .close-card").on('click', function () {
+    var $this = $(this);
+    $this.parents('.card').animate({
+        'opacity': '0',
+        '-webkit-transform': 'scale3d(.3, .3, .3)',
+        'transform': 'scale3d(.3, .3, .3)'
     });
 
-    $('#changePass').click(function () {
-        if ($(this).prop("checked") == true) {
-            $('#container_password').show();
-            $('.pass').prop('required', true);
-        } else {
-            $('#container_password').hide();
-            $('.pass').prop('required', false);
-        }
-    });
-    $('#edit').click(function () {
-        if ($(this).prop("checked") == true) {
-            $('#form-edit-user').show();
-        } else {
-            $('#form-edit-user').hide();
-        }
-    });
-
-    $(".card-header-right .close-card").on('click', function () {
-        var $this = $(this);
-        $this.parents('.card').animate({
-            'opacity': '0',
-            '-webkit-transform': 'scale3d(.3, .3, .3)',
-            'transform': 'scale3d(.3, .3, .3)'
+    setTimeout(function () {
+        $this.parents('.card').remove();
+    }, 800);
+});
+$(".card-header-right .reload-card").on('click', function () {
+    var $this = $(this);
+    $this.parents('.card').addClass("card-load");
+    $this.parents('.card').append('<div class="card-loader"><i class="fa fa-spinner rotate-refresh"></div>');
+    setTimeout(function () {
+        $this.parents('.card').children(".card-loader").remove();
+        $this.parents('.card').removeClass("card-load");
+    }, 3000);
+});
+$(".card-header-right .card-option .open-card-option").on('click', function () {
+    var $this = $(this);
+    if ($this.hasClass('fa-times')) {
+        $this.parents('.card-option').animate({
+            'width': '30px',
         });
-
-        setTimeout(function () {
-            $this.parents('.card').remove();
-        }, 800);
-    });
-    $(".card-header-right .reload-card").on('click', function () {
-        var $this = $(this);
-        $this.parents('.card').addClass("card-load");
-        $this.parents('.card').append('<div class="card-loader"><i class="fa fa-spinner rotate-refresh"></div>');
-        setTimeout(function () {
-            $this.parents('.card').children(".card-loader").remove();
-            $this.parents('.card').removeClass("card-load");
-        }, 3000);
-    });
-    $(".card-header-right .card-option .open-card-option").on('click', function () {
-        var $this = $(this);
-        if ($this.hasClass('fa-times')) {
-            $this.parents('.card-option').animate({
-                'width': '30px',
-            });
-            $(this).removeClass("fa-times").fadeIn('slow');
-            $(this).addClass("fa-wrench").fadeIn('slow');
-        } else {
-            $this.parents('.card-option').animate({
-                'width': '140px',
-            });
-            $(this).addClass("fa-times").fadeIn('slow');
-            $(this).removeClass("fa-wrench").fadeIn('slow');
-        }
-    });
-    $(".card-header-right .minimize-card").on('click', function () {
-        var $this = $(this);
-        var port = $($this.parents('.card'));
-        var card = $(port).children('.card-block').slideToggle();
-        $(this).toggleClass("fa-minus").fadeIn('slow');
-        $(this).toggleClass("fa-plus").fadeIn('slow');
-    });
-    $(".card-header-right .full-card").on('click', function () {
-        var $this = $(this);
-        var port = $($this.parents('.card'));
-        port.toggleClass("full-card");
-        $(this).toggleClass("fa-window-restore");
-    });
-
-    $(".card-header-right .icofont-spinner-alt-5").on('mouseenter mouseleave', function () {
-        $(this).toggleClass("rotate-refresh").fadeIn('slow');
-    });
-    $("#more-details").on('click', function () {
-        $(".more-details").slideToggle(500);
-    });
-    $(".mobile-options").on('click', function () {
-        $(".navbar-container .nav-right").slideToggle('slow');
-    });
-    $(".search-btn").on('click', function () {
-        $(".main-search").addClass('open');
-        $('.main-search .form-control').animate({
-            'width': '200px',
+        $(this).removeClass("fa-times").fadeIn('slow');
+        $(this).addClass("fa-wrench").fadeIn('slow');
+    } else {
+        $this.parents('.card-option').animate({
+            'width': '140px',
         });
-    });
-    $(".search-close").on('click', function () {
-        $('.main-search .form-control').animate({
-            'width': '0',
-        });
-        setTimeout(function () {
-            $(".main-search").removeClass('open');
-        }, 300);
-    });
-    // $(".header-notification").on('click', function() {
-    //     $(this).children('.show-notification').slideToggle(500);
-    //     $(this).toggleClass('active');
-    //
-    // });
+        $(this).addClass("fa-times").fadeIn('slow');
+        $(this).removeClass("fa-wrench").fadeIn('slow');
+    }
+});
+$(".card-header-right .minimize-card").on('click', function () {
+    var $this = $(this);
+    var port = $($this.parents('.card'));
+    var card = $(port).children('.card-block').slideToggle();
+    $(this).toggleClass("fa-minus").fadeIn('slow');
+    $(this).toggleClass("fa-plus").fadeIn('slow');
+});
+$(".card-header-right .full-card").on('click', function () {
+    var $this = $(this);
+    var port = $($this.parents('.card'));
+    port.toggleClass("full-card");
+    $(this).toggleClass("fa-window-restore");
+});
 
-    $(document).ready(function () {
-        $(".header-notification").click(function () {
-            $(this).find(".show-notification").slideToggle(500);
-            $(this).toggleClass('active');
-        });
+$(".card-header-right .icofont-spinner-alt-5").on('mouseenter mouseleave', function () {
+    $(this).toggleClass("rotate-refresh").fadeIn('slow');
+});
+$("#more-details").on('click', function () {
+    $(".more-details").slideToggle(500);
+});
+$(".mobile-options").on('click', function () {
+    $(".navbar-container .nav-right").slideToggle('slow');
+});
+$(".search-btn").on('click', function () {
+    $(".main-search").addClass('open');
+    $('.main-search .form-control').animate({
+        'width': '200px',
     });
-    $(document).on("click", function (event) {
-        var $trigger = $(".header-notification");
-        if ($trigger !== event.target && !$trigger.has(event.target).length) {
-            $(".show-notification").slideUp(300);
-            $(".header-notification").removeClass('active');
-        }
+});
+$(".search-close").on('click', function () {
+    $('.main-search .form-control').animate({
+        'width': '0',
     });
+    setTimeout(function () {
+        $(".main-search").removeClass('open');
+    }, 300);
+});
+// $(".header-notification").on('click', function() {
+//     $(this).children('.show-notification').slideToggle(500);
+//     $(this).toggleClass('active');
+//
+// });
 
-    // card js end
-    $.mCustomScrollbar.defaults.axis = "yx";
-    $("#styleSelector .style-cont").slimScroll({
-        setTop: "1px",
-        height: "calc(100vh - 520px)",
+$(document).ready(function () {
+    $(".header-notification").click(function () {
+        $(this).find(".show-notification").slideToggle(500);
+        $(this).toggleClass('active');
     });
-    $(".main-menu").mCustomScrollbar({
-        setTop: "1px",
-        setHeight: "calc(100% - 56px)",
-    });
-    /*chatbar js start*/
-    /*chat box scroll*/
-    var a = $(window).height() - 80;
-    $(".main-friend-list").slimScroll({
-        height: a,
-        allowPageScroll: false,
-        wheelStep: 5,
-        color: '#1b8bf9'
-    });
+});
+$(document).on("click", function (event) {
+    var $trigger = $(".header-notification");
+    if ($trigger !== event.target && !$trigger.has(event.target).length) {
+        $(".show-notification").slideUp(300);
+        $(".header-notification").removeClass('active');
+    }
+});
 
-    // search
-    $("#search-friends").on("keyup", function () {
-        var g = $(this).val().toLowerCase();
-        $(".userlist-box .media-body .chat-header").each(function () {
-            var s = $(this).text().toLowerCase();
-            $(this).closest('.userlist-box')[s.indexOf(g) !== -1 ? 'show' : 'hide']();
-        });
-    });
+// card js end
+$.mCustomScrollbar.defaults.axis = "yx";
+$("#styleSelector .style-cont").slimScroll({
+    setTop: "1px",
+    height: "calc(100vh - 520px)",
+});
+$(".main-menu").mCustomScrollbar({
+    setTop: "1px",
+    setHeight: "calc(100% - 56px)",
+});
+/*chatbar js start*/
+/*chat box scroll*/
+var a = $(window).height() - 80;
+$(".main-friend-list").slimScroll({
+    height: a,
+    allowPageScroll: false,
+    wheelStep: 5,
+    color: '#1b8bf9'
+});
 
-    // open chat box
-    $('.displayChatbox').on('click', function () {
-        var my_val = $('.pcoded').attr('vertical-placement');
-        if (my_val == 'right') {
-            var options = {
-                direction: 'left'
-            };
-        } else {
-            var options = {
-                direction: 'right'
-            };
-        }
-        $('.showChat').toggle('slide', options, 500);
+// search
+$("#search-friends").on("keyup", function () {
+    var g = $(this).val().toLowerCase();
+    $(".userlist-box .media-body .chat-header").each(function () {
+        var s = $(this).text().toLowerCase();
+        $(this).closest('.userlist-box')[s.indexOf(g) !== -1 ? 'show' : 'hide']();
     });
+});
 
-    //open friend chat
-    $('.userlist-box').on('click', function () {
-        var my_val = $('.pcoded').attr('vertical-placement');
-        if (my_val == 'right') {
-            var options = {
-                direction: 'left'
-            };
-        } else {
-            var options = {
-                direction: 'right'
-            };
-        }
-        $('.showChat_inner').toggle('slide', options, 500);
-    });
-    //back to main chatbar
-    $('.back_chatBox').on('click', function () {
-        var my_val = $('.pcoded').attr('vertical-placement');
-        if (my_val == 'right') {
-            var options = {
-                direction: 'left'
-            };
-        } else {
-            var options = {
-                direction: 'right'
-            };
-        }
-        $('.showChat_inner').toggle('slide', options, 500);
-        $('.showChat').css('display', 'block');
-    });
-    $('.back_friendlist').on('click', function () {
-        var my_val = $('.pcoded').attr('vertical-placement');
-        if (my_val == 'right') {
-            var options = {
-                direction: 'left'
-            };
-        } else {
-            var options = {
-                direction: 'right'
-            };
-        }
-        $('.p-chat-user').toggle('slide', options, 500);
-        $('.showChat').css('display', 'block');
-    });
-    // /*chatbar js end*/
+// open chat box
+$('.displayChatbox').on('click', function () {
+    var my_val = $('.pcoded').attr('vertical-placement');
+    if (my_val == 'right') {
+        var options = {
+            direction: 'left'
+        };
+    } else {
+        var options = {
+            direction: 'right'
+        };
+    }
+    $('.showChat').toggle('slide', options, 500);
+});
 
-    $('[data-toggle="tooltip"]').tooltip();
+//open friend chat
+$('.userlist-box').on('click', function () {
+    var my_val = $('.pcoded').attr('vertical-placement');
+    if (my_val == 'right') {
+        var options = {
+            direction: 'left'
+        };
+    } else {
+        var options = {
+            direction: 'right'
+        };
+    }
+    $('.showChat_inner').toggle('slide', options, 500);
+});
+//back to main chatbar
+$('.back_chatBox').on('click', function () {
+    var my_val = $('.pcoded').attr('vertical-placement');
+    if (my_val == 'right') {
+        var options = {
+            direction: 'left'
+        };
+    } else {
+        var options = {
+            direction: 'right'
+        };
+    }
+    $('.showChat_inner').toggle('slide', options, 500);
+    $('.showChat').css('display', 'block');
+});
+$('.back_friendlist').on('click', function () {
+    var my_val = $('.pcoded').attr('vertical-placement');
+    if (my_val == 'right') {
+        var options = {
+            direction: 'left'
+        };
+    } else {
+        var options = {
+            direction: 'right'
+        };
+    }
+    $('.p-chat-user').toggle('slide', options, 500);
+    $('.showChat').css('display', 'block');
+});
+// /*chatbar js end*/
 
-    // wave effect js
-    Waves.init();
-    Waves.attach('.flat-buttons', ['waves-button']);
-    Waves.attach('.float-buttons', ['waves-button', 'waves-float']);
-    Waves.attach('.float-button-light', ['waves-button', 'waves-float', 'waves-light']);
-    Waves.attach('.flat-buttons', ['waves-button', 'waves-float', 'waves-light', 'flat-buttons']);
+$('[data-toggle="tooltip"]').tooltip();
+
+// wave effect js
+Waves.init();
+Waves.attach('.flat-buttons', ['waves-button']);
+Waves.attach('.float-buttons', ['waves-button', 'waves-float']);
+Waves.attach('.float-button-light', ['waves-button', 'waves-float', 'waves-light']);
+Waves.attach('.flat-buttons', ['waves-button', 'waves-float', 'waves-light', 'flat-buttons']);
 });
 $(document).ready(function () {
     $(".theme-loader").animate({
@@ -329,7 +354,7 @@ function checkAnswer(idQuestion) {
         }
         else {
             $.ajax({
-                url: "http://localhost:8000/api/questions/check",
+                url: "http://58.84.0.169/api/questions/check",
                 method: 'POST',
                 data: {
                     id: idQuestion,
@@ -374,7 +399,7 @@ function saveResult() {
     setTimeout(function () {
         $(document).ready(function () {
             $.ajax({
-                url: "http://localhost:8000/api/user/lesson/result",
+                url: "http://58.84.0.169/api/user/lesson/result",
                 method: 'POST',
                 data: {
                     result: resultAnswer,
@@ -383,7 +408,7 @@ function saveResult() {
                     resultAccepts, resultAccepts,
                 },
                 success: function (e) {
-                    window.location.replace("http://localhost:8000/lessons/" + e);
+                    window.location.replace("http://58.84.0.169/lessons/" + e);
                 }
             });
         });

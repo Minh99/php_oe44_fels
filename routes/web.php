@@ -44,3 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::match(['GET', 'PATCH'], '/user/profile', [UserController::class, 'index'])->name('user.profile');
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
